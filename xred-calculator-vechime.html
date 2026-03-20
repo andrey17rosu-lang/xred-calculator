@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>XRED — Calculator Vechime</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--red:#CC0000;--bg:#F5F5F5;--border:#e0e0e0;}
+body{background:var(--bg);font-family:'Rajdhani',sans-serif;color:#111;padding-bottom:60px;}
+
+.hdr{background:#fff;padding:18px;text-align:center;border-bottom:2px solid var(--red);}
+.hdr-box{display:inline-block;border:3px solid var(--red);padding:8px 28px;margin-bottom:5px;}
+.hdr h1{font-family:'Orbitron',monospace;font-size:clamp(18px,5vw,26px);font-weight:900;letter-spacing:6px;color:var(--red);}
+.hdr-sub{font-family:'Orbitron',monospace;font-size:10px;font-weight:900;color:var(--red);letter-spacing:2px;margin-top:4px;}
+.hdr-info{font-size:10px;letter-spacing:3px;color:var(--red);opacity:0.6;margin-top:2px;}
+
+.wrap{max-width:960px;margin:0 auto;padding:18px 12px 0;}
+
+.card{background:#fff;border:1px solid var(--border);padding:18px;margin-bottom:14px;border-radius:3px;position:relative;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:3px 3px 0 0;background:linear-gradient(90deg,transparent,var(--red),transparent);}
+.ct{font-family:'Orbitron',monospace;font-size:13px;letter-spacing:3px;color:#111;font-weight:900;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.ct-g1{color:var(--red);}
+.ct-g2{color:#B8860B;}
+
+.legenda{font-size:12px;color:#666;line-height:1.7;padding:10px 14px;background:#FFF8F8;border-left:3px solid var(--red);border-radius:0 3px 3px 0;}
+.legenda b{color:var(--red);}
+
+/* TABEL */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table{width:100%;border-collapse:collapse;min-width:700px;}
+thead th{background:var(--red);color:#fff;font-family:'Orbitron',monospace;font-size:8px;letter-spacing:2px;padding:9px 6px;text-align:center;border:1px solid #990000;}
+thead th.th-lbl{background:#8B0000;width:32px;}
+tbody tr:nth-child(even){background:#FFF8F8;}
+tbody tr:hover{background:#FFF0F0;}
+tbody td{padding:5px 4px;border:1px solid #f0e0e0;vertical-align:middle;text-align:center;}
+tbody td.td-lbl{background:var(--red);color:#fff;font-family:'Orbitron',monospace;font-size:13px;font-weight:700;}
+tbody td.td-rez{font-family:'Orbitron',monospace;font-size:15px;font-weight:900;color:var(--red);min-width:160px;text-align:left;padding:8px 10px;}
+
+/* INPUTS */
+.inp{border:1.5px solid #ccc;padding:8px 4px;font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;border-radius:3px;outline:none;color:#111;background:#FAFAFA;text-align:center;width:100%;transition:border-color .2s;}
+.inp:focus{border-color:var(--red);background:#fff;}
+.inp-an{width:78px;}
+.lbl-mic{font-size:9px;color:#aaa;text-align:center;margin-bottom:2px;letter-spacing:1px;}
+.date-grup{display:flex;gap:4px;align-items:flex-end;}
+.date-grup > div{display:flex;flex-direction:column;}
+
+select.inp{cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23CC0000' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;padding-right:20px;}
+
+/* TOTAL */
+.total-box{background:#F0F0F0;border:2px solid #CC000030;border-radius:3px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:14px;}
+.total-lbl{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:3px;color:var(--red);font-weight:700;margin-bottom:4px;}
+.total-val{font-family:'Orbitron',monospace;font-size:22px;font-weight:900;color:#111;}
+
+/* GRUPE */
+.grp-row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:10px;padding:10px;background:#FAFAFA;border:1px solid var(--border);border-radius:3px;}
+.grp-lbl{font-size:10px;letter-spacing:1px;color:#888;font-weight:700;white-space:nowrap;padding-bottom:2px;}
+.grp-rez{font-family:'Orbitron',monospace;font-size:12px;font-weight:700;color:var(--red);align-self:center;min-width:80px;}
+.del-btn{background:none;border:1px solid #ddd;color:#aaa;cursor:pointer;padding:5px 9px;border-radius:3px;font-size:13px;align-self:flex-end;}
+.del-btn:hover{border-color:var(--red);color:var(--red);}
+.grp-result-box{background:#F8F8F8;border:1px solid var(--border);border-radius:3px;padding:12px 16px;margin-top:12px;display:flex;gap:24px;flex-wrap:wrap;}
+.grp-r-item{display:flex;flex-direction:column;gap:3px;}
+.grp-r-lbl{font-size:9px;letter-spacing:2px;color:#888;font-weight:700;text-transform:uppercase;}
+.grp-r-val{font-family:'Orbitron',monospace;font-size:16px;font-weight:900;}
+
+/* BUTOANE */
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
+.btn{flex:1;min-width:130px;padding:13px;border:none;font-family:'Orbitron',monospace;font-size:10px;letter-spacing:3px;cursor:pointer;border-radius:3px;transition:all .2s;}
+.btn-red{background:linear-gradient(135deg,#8B0000,var(--red));color:#fff;box-shadow:0 4px 15px #CC000040;}
+.btn-red:hover{transform:translateY(-1px);}
+.btn-out{background:#fff;color:var(--red);border:2px solid var(--red);}
+.btn-out:hover{background:#FFF0F0;}
+.btn-gri{background:#fff;color:#555;border:2px solid #ccc;}
+.btn-gri:hover{border-color:#888;}
+.btn-add{background:#fff;border:2px solid var(--red);color:var(--red);font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;padding:9px 16px;cursor:pointer;border-radius:3px;margin-top:8px;}
+
+@media print{
+  .legenda,.btn-row,.btn-add,.del-btn,.no-print{display:none!important;}
+  body{background:#fff;}
+  .card{box-shadow:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-box"><h1>XRED</h1></div>
+  <div class="hdr-sub">CALCULATOR VECHIME ÎN MUNCĂ</div>
+  <div class="hdr-info">INFORMAȚII CU CARACTER INFORMATIV</div>
+</div>
+
+<div class="wrap">
+
+<div class="card no-print">
+  <div class="legenda">
+    <b>DE LA</b> inclusă · <b>PÂNĂ LA</b> exclusă din calcul · <b>CFP</b> = Concediu Fără Plată · <b>AN</b> = Absență Nemotivată — se scad cu coeficient în funcție de perioada lucrată · 12 intervale disponibile (A–L)
+  </div>
+</div>
+
+<!-- TABEL PRINCIPAL -->
+<div class="card">
+  <div class="ct">INTERVALE DE VECHIME</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="th-lbl" rowspan="2">#</th>
+          <th colspan="3" style="background:#8B0000;border-right:3px solid #fff;">DE LA</th>
+          <th colspan="3" style="background:#8B0000;border-right:3px solid #fff;">PÂNĂ LA</th>
+          <th rowspan="2" style="background:#6B0000;">CFP</th>
+          <th rowspan="2" style="background:#6B0000;">AN</th>
+          <th rowspan="2" style="background:#6B0000;">NORMĂ</th>
+          <th rowspan="2" style="font-size:10px;">VECHIME<br>INTERVAL</th>
+        </tr>
+        <tr>
+          <th style="background:#AA0000;">ZI</th>
+          <th style="background:#AA0000;">LUNĂ</th>
+          <th style="background:#AA0000;border-right:3px solid #fff;">AN</th>
+          <th style="background:#AA0000;">ZI</th>
+          <th style="background:#AA0000;">LUNĂ</th>
+          <th style="background:#AA0000;border-right:3px solid #fff;">AN</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+  <div class="total-box">
+    <div>
+      <div class="total-lbl">TOTAL VECHIME</div>
+      <div class="total-val" id="total-val">—</div>
+    </div>
+    <div style="text-align:right;">
+      <div class="total-lbl">INTERVALE</div>
+      <div style="font-family:'Orbitron',monospace;font-size:20px;font-weight:900;color:var(--red);" id="total-nr">0</div>
+    </div>
+  </div>
+</div>
+
+<!-- GRUPA I -->
+<div class="card">
+  <div class="ct ct-g1">⚡ GRUPA I DE MUNCĂ</div>
+  <div id="g1-rows"></div>
+  <button class="btn-add" onclick="addGrupa(1)">＋ ADAUGĂ INTERVAL GRUPA I</button>
+  <div class="grp-result-box" id="g1-result" style="display:none;">
+    <div class="grp-r-item">
+      <div class="grp-r-lbl">Total perioadă Grupa I</div>
+      <div class="grp-r-val" style="color:var(--red);" id="g1-total">—</div>
+    </div>
+    <div class="grp-r-item">
+      <div class="grp-r-lbl">Reducere vârstă (informativ)</div>
+      <div class="grp-r-val" style="color:#111;" id="g1-red">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- GRUPA II -->
+<div class="card">
+  <div class="ct ct-g2">🔧 GRUPA II DE MUNCĂ</div>
+  <div id="g2-rows"></div>
+  <button class="btn-add" style="border-color:#B8860B;color:#B8860B;" onclick="addGrupa(2)">＋ ADAUGĂ INTERVAL GRUPA II</button>
+  <div class="grp-result-box" id="g2-result" style="display:none;">
+    <div class="grp-r-item">
+      <div class="grp-r-lbl">Total perioadă Grupa II</div>
+      <div class="grp-r-val" style="color:#B8860B;" id="g2-total">—</div>
+    </div>
+    <div class="grp-r-item">
+      <div class="grp-r-lbl">Reducere vârstă (informativ)</div>
+      <div class="grp-r-val" style="color:#111;" id="g2-red">—</div>
+    </div>
+  </div>
+</div>
+
+<div class="btn-row">
+  <button class="btn btn-red" onclick="calcAll()">▶ RECALCULEAZĂ</button>
+  <button class="btn btn-out" onclick="window.print()">🖨 PRINTEAZĂ</button>
+  <button class="btn btn-gri" onclick="resetAll()">↺ RESETEAZĂ</button>
+</div>
+
+</div>
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════
+// COEFICIENTI CFP/AN in functie de data final
+// ═══════════════════════════════════════════
+const COEF = [
+  {pana:'1978-01-01', c:1.19},
+  {de:'1978-01-01', pana:'1990-03-01', c:1.24},
+  {de:'1990-03-01', pana:'1990-10-01', c:1.29},
+  {de:'1990-10-01', pana:'1997-01-01', c:1.43},
+  {de:'1997-01-01', pana:'1998-01-01', c:1.44},
+  {de:'1998-01-01', pana:'1999-01-01', c:1.43},
+  {de:'1999-01-01', pana:'2001-04-01', c:1.41},
+];
+
+function getCoef(dateStr) {
+  const d = new Date(dateStr);
+  for (const r of COEF) {
+    const de   = r.de   ? new Date(r.de)   : new Date('1900-01-01');
+    const pana = new Date(r.pana);
+    if (d >= de && d < pana) return r.c;
+  }
+  return 1.0;
+}
+
+// ═══════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════
+function mkDate(z, l, a) {
+  if (!z || !l || !a) return null;
+  const s = `${a}-${String(l).padStart(2,'0')}-${String(z).padStart(2,'0')}`;
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : s;
+}
+
+function zileDiff(d1, d2) {
+  const t1 = new Date(d1).getTime();
+  const t2 = new Date(d2).getTime();
+  if (isNaN(t1)||isNaN(t2)||t2<=t1) return 0;
+  return Math.round((t2-t1)/86400000);
+}
+
+function zile2alz(zile) {
+  if (zile<=0) return {a:0,l:0,z:0};
+  return {a:Math.floor(zile/365), l:Math.floor((zile%365)/30), z:(zile%365)%30};
+}
+
+function fmt(o) {
+  if (!o||(!o.a&&!o.l&&!o.z)) return '0 zile';
+  return (o.a?o.a+' ani ':'')+(o.l?o.l+' luni ':'')+(o.z?o.z+' zile':'');
+}
+
+function fmtLuni(luni) {
+  if (!luni) return '0 luni';
+  const a=Math.floor(luni/12),l=luni%12;
+  return (a?a+' ani ':'')+(l?l+' luni':'');
+}
+
+function addZile(acc, z) {
+  return acc + z;
+}
+
+// ═══════════════════════════════════════════
+// TABEL PRINCIPAL — 12 intervale A-L
+// ═══════════════════════════════════════════
+const LITERE = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+
+function mkInp(id, w, max) {
+  return `<input class="inp" type="number" id="${id}" min="1" max="${max}" style="width:${w}px;" onchange="calcAll()" oninput="calcAll()"/>`;
+}
+
+(function buildTable() {
+  const tb = document.getElementById('tbody');
+  LITERE.forEach(l => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="td-lbl">${l}</td>
+      <td style="border-right:none;">${mkInp('de-z-'+l,44,31)}</td>
+      <td style="border-right:none;">${mkInp('de-l-'+l,44,12)}</td>
+      <td style="border-right:3px solid #CC000050;">${mkInp('de-a-'+l,72,2025)}</td>
+      <td style="border-right:none;">${mkInp('la-z-'+l,44,31)}</td>
+      <td style="border-right:none;">${mkInp('la-l-'+l,44,12)}</td>
+      <td style="border-right:3px solid #CC000050;">${mkInp('la-a-'+l,72,2025)}</td>
+      <td style="vertical-align:middle;"><input class="inp" type="number" id="cfp-${l}" min="0" value="" style="width:56px;" onchange="calcAll()" oninput="calcAll()"/></td>
+      <td style="vertical-align:middle;"><input class="inp" type="number" id="an-${l}" min="0" value="" style="width:56px;" onchange="calcAll()" oninput="calcAll()"/></td>
+      <td style="vertical-align:middle;">
+        <select class="inp" id="norma-${l}" onchange="calcAll()" style="width:130px;font-size:13px;">
+          <option value="1">8h — Normă întreagă</option>
+          <option value="0.5">½ Normă</option>
+        </select>
+      </td>
+      <td class="td-rez" style="font-size:13px;" id="rez-${l}">—</td>
+    `;
+    tb.appendChild(tr);
+  });
+})();
+
+function calcAll() {
+  let totalZ = 0;
+  let completate = 0;
+
+  LITERE.forEach(l => {
+    const dez = document.getElementById('de-z-'+l)?.value;
+    const del = document.getElementById('de-l-'+l)?.value;
+    const dea = document.getElementById('de-a-'+l)?.value;
+    const laz = document.getElementById('la-z-'+l)?.value;
+    const lal = document.getElementById('la-l-'+l)?.value;
+    const laa = document.getElementById('la-a-'+l)?.value;
+    const cfp = parseInt(document.getElementById('cfp-'+l)?.value)||0;
+    const an  = parseInt(document.getElementById('an-'+l)?.value)||0;
+    const norma = parseFloat(document.getElementById('norma-'+l)?.value)||1;
+    const rez = document.getElementById('rez-'+l);
+
+    const de = mkDate(dez,del,dea);
+    const la = mkDate(laz,lal,laa);
+
+    if (!de||!la) { rez.textContent='—'; rez.style.color='#ccc'; return; }
+
+    let zile = zileDiff(de, la);
+    if (zile<=0) { rez.textContent='Dată invalidă'; rez.style.color='#f60'; return; }
+
+    // Coeficient CFP/AN bazat pe data de FINAL
+    const coef = getCoef(la);
+    const deduse = Math.ceil((cfp+an)*coef);
+    zile = Math.max(0, zile - deduse);
+
+    // Norma
+    if (norma < 1) zile = Math.round(zile * norma);
+
+    totalZ += zile;
+    completate++;
+
+    const alz = zile2alz(zile);
+    let txt = fmt(alz);
+    const det = [];
+    if ((cfp+an)>0 && coef!==1.0) det.push(`${cfp+an}z×${coef}=${deduse}z ded.`);
+    else if ((cfp+an)>0) det.push(`${deduse}z ded.`);
+    if (norma<1) det.push('½ normă');
+    if (det.length) txt += ` (${det.join(', ')})`;
+    rez.textContent = txt;
+    rez.style.color = '#CC0000';
+  });
+
+  document.getElementById('total-val').textContent = fmt(zile2alz(totalZ)) || '—';
+  document.getElementById('total-nr').textContent = completate;
+}
+
+// ═══════════════════════════════════════════
+// GRUPE I și II
+// ═══════════════════════════════════════════
+let gCnt = {1:0, 2:0};
+
+function rG1(ani) { return ani>=10 ? 60 : ani*6; }
+function rG2(ani) { return ani*4; }
+
+function addGrupa(nr) {
+  const id = 'g'+nr+'-'+(++gCnt[nr]);
+  const cont = document.getElementById('g'+nr+'-rows');
+  const procMin = nr===1?50:70;
+  const culG = nr===1?'var(--red)':'#B8860B';
+
+  const div = document.createElement('div');
+  div.className = 'grp-row';
+  div.id = id;
+  div.innerHTML = `
+    <div>
+      <div class="grp-lbl" style="margin-bottom:4px;">DE LA</div>
+      <div class="date-grup">
+        <div><input class="inp" type="number" id="${id}-de-z" min="1" max="31" style="width:48px;" onchange="calcGrupe()" oninput="calcGrupe()"/></div>
+        <div><input class="inp" type="number" id="${id}-de-l" min="1" max="12" style="width:48px;" onchange="calcGrupe()" oninput="calcGrupe()"/></div>
+        <div><input class="inp" type="number" id="${id}-de-a" min="1940" max="2025" style="width:70px;" onchange="calcGrupe()" oninput="calcGrupe()"/></div>
+      </div>
+    </div>
+    <div>
+      <div class="grp-lbl" style="margin-bottom:4px;">PÂNĂ LA</div>
+      <div class="date-grup">
+        <div><input class="inp" type="number" id="${id}-la-z" min="1" max="31" style="width:48px;" onchange="calcGrupe()" oninput="calcGrupe()"/></div>
+        <div><input class="inp" type="number" id="${id}-la-l" min="1" max="12" style="width:48px;" onchange="calcGrupe()" oninput="calcGrupe()"/></div>
+        <div><input class="inp" type="number" id="${id}-la-a" min="1940" max="2025" style="width:70px;" onchange="calcGrupe()" oninput="calcGrupe()"/></div>
+      </div>
+    </div>
+    <div>
+      <div class="grp-lbl" style="margin-bottom:4px;">PROCENT</div>
+      <div style="display:flex;align-items:center;gap:4px;">
+        <input class="inp" type="number" id="${id}-proc" min="${procMin}" max="100" value="100" style="width:60px;" onchange="calcGrupe()" oninput="calcGrupe()"/>
+        <span style="font-size:11px;color:#888;">% (min ${procMin}%)</span>
+      </div>
+    </div>
+    <div class="grp-rez" style="color:${culG};" id="${id}-rez">—</div>
+    <button class="del-btn" onclick="delGrupa('${id}',${nr})">✕</button>
+  `;
+  cont.appendChild(div);
+  document.getElementById('g'+nr+'-result').style.display='flex';
+}
+
+function delGrupa(id, nr) {
+  document.getElementById(id)?.remove();
+  calcGrupe();
+}
+
+function calcGrupe() {
+  [1,2].forEach(nr => {
+    const cont = document.getElementById('g'+nr+'-rows');
+    const rows = cont.querySelectorAll('.grp-row');
+    if (!rows.length) { document.getElementById('g'+nr+'-result').style.display='none'; return; }
+
+    let totalZ = 0;
+    const procMin = nr===1?50:70;
+
+    rows.forEach(row => {
+      const id = row.id;
+      const gz = p => mkDate(
+        document.getElementById(id+'-'+p+'-z')?.value,
+        document.getElementById(id+'-'+p+'-l')?.value,
+        document.getElementById(id+'-'+p+'-a')?.value
+      );
+      const de = gz('de'), la = gz('la');
+      const proc = parseInt(document.getElementById(id+'-proc')?.value)||100;
+      const rezEl = document.getElementById(id+'-rez');
+
+      if (!de||!la) { if(rezEl) rezEl.textContent='—'; return; }
+      const z = zileDiff(de,la);
+      if (z<=0) { if(rezEl) rezEl.textContent='Dată invalidă'; return; }
+      if (proc<procMin) { if(rezEl) rezEl.textContent=`Min ${procMin}%!`; return; }
+
+      totalZ += z;
+      const alz = zile2alz(z);
+      if (rezEl) rezEl.textContent = fmt(alz)+(proc<100?` (${proc}%)` : ' (100%)');
+    });
+
+    const aniExact = totalZ/365;
+    const aniIntregi = Math.floor(aniExact);
+    const alz = zile2alz(totalZ);
+    const luni = nr===1 ? rG1(aniIntregi) : rG2(aniIntregi);
+
+    document.getElementById('g'+nr+'-total').textContent =
+      fmt(alz) + ' → ' + aniIntregi + ' ani întregi';
+    document.getElementById('g'+nr+'-red').textContent =
+      '(' + fmtLuni(luni) + ' reducere)';
+    document.getElementById('g'+nr+'-result').style.display='flex';
+  });
+}
+
+function resetAll() {
+  if (!confirm('Ștergi toate datele?')) return;
+  LITERE.forEach(l => {
+    ['de-z','de-l','de-a','la-z','la-l','la-a'].forEach(f => {
+      const el=document.getElementById(f+'-'+l); if(el) el.value='';
+    });
+    const cfp=document.getElementById('cfp-'+l); if(cfp) cfp.value='';
+    const an=document.getElementById('an-'+l); if(an) an.value='';
+    const n=document.getElementById('norma-'+l); if(n) n.value='1';
+    const r=document.getElementById('rez-'+l); if(r){r.textContent='—';r.style.color='#ccc';}
+  });
+  [1,2].forEach(nr => {
+    document.getElementById('g'+nr+'-rows').innerHTML='';
+    document.getElementById('g'+nr+'-result').style.display='none';
+    gCnt[nr]=0;
+  });
+  document.getElementById('total-val').textContent='—';
+  document.getElementById('total-nr').textContent='0';
+}
+</script>
+</body>
+</html>
